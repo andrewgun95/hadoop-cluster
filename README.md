@@ -50,4 +50,11 @@ docker-compose down
 
 ---
 
+### Version Information
+
+- **Python:** 3.10.11 (used in Spark job container)
+- **Java:** 1.8 (used in Hadoop server)
+- **Apache Spark:** 3.5.7
+- **Hadoop:** See `docker-compose.yml` for the specific version used
+
 Feel free to customize the configuration for your specific use case.
