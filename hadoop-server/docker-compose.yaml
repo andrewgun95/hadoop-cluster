@@ -1,0 +1,68 @@
+services:
+   namenode:
+      image: apache/hadoop:3.4.1
+      hostname: namenode
+      command: ["hdfs", "namenode"]
+      ports:
+        - 9870:9870
+      env_file:
+        - ./config
+      environment:
+          ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+      volumes:
+      - ${PWD}/training:/training
+   datanode:
+      image: apache/hadoop:3.4.1
+      command: ["hdfs", "datanode"]
+      env_file:
+        - ./config
+   hdfs-init:
+      image: apache/hadoop:3.4.1
+      command: >
+        bash -c "
+        echo 'Waiting for HDFS to be ready...' &&
+        sleep 60 &&
+        hdfs dfs -mkdir -p /tmp/spark-staging &&
+        hdfs dfs -chmod 777 /tmp/spark-staging &&
+        hdfs dfs -mkdir -p /user/root &&
+        hdfs dfs -chown root /user/root &&
+        echo 'HDFS directories created successfully'
+        "
+      env_file:
+        - ./config
+      depends_on:
+        - namenode
+        - datanode           
+   resourcemanager:
+      image: apache/hadoop:3.4.1
+      hostname: resourcemanager
+      command: ["yarn", "resourcemanager"]
+      ports:
+         - 8088:8088
+      env_file:
+        - ./config
+   nodemanager:
+      image: apache/hadoop:3.4.1
+      command: ["yarn", "nodemanager"]
+      ports:
+        - 8042:8042
+      env_file:
+        - ./config
+   spark-job:
+      build: 
+        context: ..
+      hostname: spark-job
+      command: tail -f /dev/null
+      ports:
+        - 4040:4040
+      depends_on:
+        - namenode
+        - resourcemanager
+        - hdfs-init
+      env_file:
+        - ./config
+      environment:
+        HADOOP_CONF_DIR: /app/config
+      volumes:
+        - ../devl:/app
+        - ./spark-config:/app/config

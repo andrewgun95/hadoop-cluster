@@ -33,8 +33,9 @@ The repository contains a `docker-compose.yml` file that sets up a single-node H
 4. Place your Spark job application in the `/devl` directory, then submit the job from within the Spark job container:
     ```bash
     docker exec -it hadoop-server-spark-job /bin/bash
-    spark-submit --master yarn --deploy-mode cluster ./example1/src/main/python/bin/basic.py
+    spark-submit --master yarn --deploy-mode client ./example1/src/main/python/bin/basic.py
     ```
+> **Note:** Currently, only the client deploy mode is supported.
 
 ### Stopping the Cluster
 
